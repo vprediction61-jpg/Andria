@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: offpred
+      POSTGRES_PASSWORD: offpredpass
+      POSTGRES_DB: offpreddb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - offnet
+
+  ml-service:
+    build:
+      context: ./ml_service
+    environment:
+      MODEL_DIR: /models/model.pkl
+    volumes:
+      - ml_models:/models
+    ports:
+      - "5000:5000"
+    networks:
+      - offnet
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      PORT: 3000
+      TARGET_URL: "https://bet261.mg/instant-games/em/aviator-spribe"
+      ML_SERVICE_URL: "http://ml-service:5000"
+      OPENAI_KEY: "${OPENAI_KEY}"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ml-service
+      - postgres
+    volumes:
+      - ./backend:/usr/src/app
+    networks:
+      - offnet
+
+volumes:
+  db_data:
+  ml_models:
+
+networks:
+  offnet:

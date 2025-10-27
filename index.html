@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Luciano Offpred — Aviator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--accent:#facc15;--bg:#0b0f1a;--panel:rgba(15,18,26,0.75);}
+    body{background:var(--bg);color:#e8eef8;font-family:Inter,Roboto,Arial;margin:0;padding:20px;}
+    .container{max-width:980px;margin:0 auto;}
+    .panel{background:var(--panel);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 24px rgba(0,0,0,0.5);}
+    .accent{background:var(--accent);color:#111;padding:.35rem .6rem;border-radius:6px;font-weight:700;}
+    input,button,select{font-family:inherit}
+    pre{white-space:pre-wrap;word-break:break-word}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 style="margin:0;font-size:1.4rem">Luciano Offpred <span class="accent">Aviator</span></h1>
+        <div style="color:#9fb3d6;font-size:0.9rem">Interface — connecté au backend</div>
+      </div>
+      <div style="text-align:right;color:#9fb3d6;font-size:0.9rem">Device: <span id="ua"></span></div>
+    </header>
+
+    <section class="panel mb-6" id="loginPanel">
+      <h2 style="margin:0 0 8px 0">Connexion</h2>
+      <div style="color:#b7cde6;font-size:0.95rem;margin-bottom:8px">Mot de passe requis pour accéder à l'app complète.</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="password" placeholder="Mot de passe" style="flex:1;padding:8px;border-radius:8px;background:#071022;border:1px solid rgba(255,255,255,0.03);color:#e8eef8" />
+        <button id="btnLogin" class="accent" style="border:none;padding:8px 12px;border-radius:8px;cursor:pointer">Connexion</button>
+      </div>
+      <div style="margin-top:8px;color:#8fa8d0;font-size:0.9rem">Mot de passe: <strong>LUCIANO OFF</strong></div>
+      <div style="margin-top:8px;color:#f5d6a5;font-size:0.85rem">Configure la clé API et accès officiels sur le backend (.env ou secrets).</div>
+    </section>
+
+    <section id="app" style="display:none">
+      <div class="panel mb-6">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3 style="margin:0">Connexion au serveur officiel</h3>
+            <div style="color:#9fb3d6;font-size:0.9rem">Le backend se connecte à: <code>https://bet261.mg/instant-games/em/aviator-spribe</code></div>
+          </div>
+          <div>
+            <button id="btnLogout" style="background:#ef4444;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Déconnexion</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+          <button id="btnFetchState" class="accent" style="border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Rafraîchir état</button>
+          <button id="btnStartAuto" style="background:#2563eb;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Auto-refresh OFF</button>
+          <button id="btnGetLatestPrediction" style="background:#10b981;color:#011;border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Dernière prédiction</button>
+        </div>
+
+        <div id="stateBox" style="margin-top:12px"></div>
+      </div>
+
+      <div class="panel mb-6">
+        <h3 style="margin:0 0 8px 0">Time Mode — Premium Analysis (5 prédictions)</h3>
+        <div style="color:#9fb3d6;margin-bottom:8px">Valeur par défaut: <strong>06072005</strong></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="timeInput" value="06072005" style="flex:1;padding:8px;border-radius:8px;background:#071022;border:1px solid rgba(255,255,255,0.03);color:#e8eef8" />
+          <button id="btnPredict5" class="accent" style="border:none;padding:8px 12px;border-radius:8px;cursor:pointer">Obtenir 5 prédictions</button>
+        </div>
+        <div id="predictionsRow" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <div id="predLog" style="margin-top:8px;color:#9fb3d6"></div>
+      </div>
+
+      <div class="panel mb-6">
+        <h3 style="margin:0 0 8px 0">Screenshot Analysis</h3>
+        <div style="color:#9fb3d6;margin-bottom:8px">Code requis: <strong>andrian</strong></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="ssCode" placeholder="Code (andrian)" style="padding:8px;border-radius:8px;background:#071022;border:1px solid rgba(255,255,255,0.03);color:#e8eef8" />
+          <input id="ssFile" type="file" accept="image/*" />
+          <button id="btnUploadSS" style="background:#7c3aed;color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Envoyer & analyser</button>
+        </div>
+        <div id="ssResult" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel mb-6">
+        <h3 style="margin:0 0 8px 0">Assistant IA</h3>
+        <div style="display:flex;gap:8px">
+          <input id="chatInput" placeholder="Pose ta question..." style="flex:1;padding:8px;border-radius:8px;background:#071022;border:1px solid rgba(255,255,255,0.03);color:#e8eef8" />
+          <button id="btnChatSend" style="background:#f59e0b;border:none;padding:8px 10px;border-radius:8px;cursor:pointer">Envoyer</button>
+        </div>
+        <div id="chatBox" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+      </div>
+
+      <footer style="color:#9fb3d6;font-size:0.8rem">Configure les clés et secrets côté serveur. Ne jamais exposer la clé côté client.</footer>
+    </section>
+  </div>
+
+<script>
+(function(){
+  document.getElementById('ua').textContent = navigator.userAgent;
+
+  const loginPanel = document.getElementById('loginPanel');
+  const appSection = document.getElementById('app');
+  const passwordInput = document.getElementById('password');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+
+  function showApp(){ loginPanel.style.display = 'none'; appSection.style.display = 'block'; }
+  function showLogin(){ loginPanel.style.display = 'block'; appSection.style.display = 'none'; }
+
+  btnLogin.addEventListener('click', ()=>{
+    const pw = passwordInput.value.trim();
+    if(pw === 'LUCIANO OFF'){ localStorage.setItem('luciano_auth','1'); showApp(); } else { alert('Mot de passe incorrect'); }
+  });
+  btnLogout.addEventListener('click', ()=>{ localStorage.removeItem('luciano_auth'); showLogin(); });
+  if(localStorage.getItem('luciano_auth') === '1') showApp(); else showLogin();
+
+  async function apiGet(path){
+    const res = await fetch('/api' + path);
+    if(!res.ok){ const t = await res.text(); throw new Error(t || res.status); }
+    return res.json();
+  }
+  async function apiPost(path, body){
+    const res = await fetch('/api' + path, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if(!res.ok){ const t = await res.text(); throw new Error(t || res.status); }
+    return res.json();
+  }
+
+  document.getElementById('btnFetchState').addEventListener('click', fetchState);
+  async function fetchState(){
+    const box = document.getElementById('stateBox');
+    box.innerText = '⏳ Récupération de l\'état...';
+    try{ const data = await apiGet('/fetch-game'); box.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>'; return data; }catch(err){ box.innerText = 'Erreur: ' + err.message; }
+  }
+
+  let autoId = null;
+  const btnAuto = document.getElementById('btnStartAuto');
+  btnAuto.addEventListener('click', ()=>{
+    if(autoId){ clearInterval(autoId); autoId = null; btnAuto.textContent = 'Auto-refresh OFF'; btnAuto.style.background='#2563eb'; }
+    else { autoId = setInterval(fetchState,8000); btnAuto.textContent='Auto-refresh ON'; btnAuto.style.background='#16a34a'; fetchState(); }
+  });
+
+  document.getElementById('btnGetLatestPrediction').addEventListener('click', async ()=>{
+    const log = document.getElementById('predLog');
+    log.textContent = '⏳ Chargement...';
+    try{ const data = await apiGet('/prediction/latest'); log.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>'; }catch(err){ log.textContent = 'Erreur: ' + err.message; }
+  });
+
+  document.getElementById('btnPredict5').addEventListener('click', async ()=>{
+    const inp = document.getElementById('timeInput').value.trim() || '06072005';
+    const row = document.getElementById('predictionsRow'); row.innerHTML='';
+    const log = document.getElementById('predLog'); log.textContent='⏳ Demande des 5 prédictions...';
+    for(let i=0;i<5;i++){ try{ const res = await apiPost('/predict', {mode:'time', input: inp, round: i+1}); const cell = document.createElement('div'); cell.style.minWidth='180px'; cell.className='panel'; cell.innerHTML = '<strong>#'+(i+1)+'</strong><pre>' + JSON.stringify(res.prediction || res, null, 2) + '</pre>'; row.appendChild(cell); }catch(err){ const cell=document.createElement('div'); cell.className='panel'; cell.style.minWidth='180px'; cell.textContent='Erreur: '+err.message; row.appendChild(cell); } await new Promise(r=>setTimeout(r,300)); } log.textContent='Terminé'; });
+
+  document.getElementById('btnUploadSS').addEventListener('click', async ()=>{
+    const fileEl = document.getElementById('ssFile'); const code = document.getElementById('ssCode').value.trim(); const out = document.getElementById('ssResult');
+    if(!fileEl.files[0]) { alert('Ajoute une image'); return; }
+    if(code !== 'andrian'){ alert('Code invalide'); return; }
+    const fd = new FormData(); fd.append('screenshot', fileEl.files[0]); fd.append('code', code);
+    out.textContent = '⏳ Upload & analyse...';
+    try{ const resp = await fetch('/api/predict-screenshot', { method:'POST', body: fd }); if(!resp.ok){ const t=await resp.text(); throw new Error(t||resp.status); } const data = await resp.json(); out.innerHTML = '<pre>'+JSON.stringify(data,null,2)+'</pre>'; }catch(err){ out.textContent='Erreur: '+err.message; }
+  });
+
+  document.getElementById('btnChatSend').addEventListener('click', async ()=>{
+    const txt = document.getElementById('chatInput').value.trim(); const box = document.getElementById('chatBox'); if(!txt) return;
+    const p = document.createElement('div'); p.textContent = 'Vous: '+txt; box.appendChild(p); document.getElementById('chatInput').value='';
+    try{ const res = await apiPost('/ask', { message: txt }); const q = document.createElement('div'); q.textContent = 'Assistant: ' + (res.reply || JSON.stringify(res)); box.appendChild(q); box.scrollTop = box.scrollHeight; }catch(err){ const q=document.createElement('div'); q.textContent='Assistant error: '+err.message; box.appendChild(q); }
+  });
+
+  window.hopeoff_debug = { fetchState };
+
+})();
+</script>
+</body>
+</html>
